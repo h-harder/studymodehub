@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Study Mode Hub — Calm & Fun</title>
+<style>
+  :root{
+    --bg: #f7fbff;
+    --card: #ffffff;
+    --ink: #1f2a44;
+    --muted: #6b7a90;
+    --brand: #77aaff;
+    --brand-2: #7ee0c2;
+    --accent: #ffd37e;
+    --ring-bg: #e7f0ff;
+    --shadow: 0 10px 30px rgba(31,42,68,0.08);
+    --radius-lg: 18px;
+    --spacing: clamp(16px, 2vw, 24px);
+    --wrap: min(100%, 980px);
+  }
+  /* Dark theme overrides */
+  html[data-theme="dark"]{
+    --bg: #0f1622;
+    --card: #0f1b2e;
+    --ink: #e8f1ff;
+    --muted: #b7c4d6;
+    --brand: #7bb2ff;
+    --brand-2: #61d9bd;
+    --accent: #ffd37e;
+    --ring-bg: #14233a;
+    --shadow: 0 10px 30px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body{
+    margin:0;
+    font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji";
+    color: var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, color-mix(in oklab, var(--brand) 25%, transparent) , transparent 60%),
+      radial-gradient(1200px 600px at 110% 10%, color-mix(in oklab, var(--brand-2) 20%, transparent), transparent 60%),
+      var(--bg);
+    transition: background 200ms ease, color 200ms ease;
+  }
+
+  header{
+    width: var(--wrap);
+    margin: 24px auto 0;
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+    color:#073b4c;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: clamp(16px, 3vw, 28px);
+    text-align:center;
+    position: relative;
+  }
+  header h1{
+    margin:0 0 8px 0;
+    font-weight:800;
+    letter-spacing:.3px;
+    font-size: clamp(20px, 3.5vw, 32px);
+  }
+  header p{ margin:0; opacity:.9; font-size: clamp(14px, 2vw, 18px); }
+
+  .theme-toggle{
+    position:absolute; right:12px; top:12px;
+    border:0; border-radius: 999px; cursor:pointer;
+    background: rgba(255,255,255,.85);
+    padding:10px 14px; font-weight:700; color:#073b4c;
+    box-shadow: var(--shadow);
+  }
+
+  .wrap{ width: var(--wrap); margin: 18px auto 60px; padding: 0 var(--spacing); }
+
+  .mode-buttons{
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--spacing); margin: 26px 0;
+  }
+  .mode-btn{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    border:0; border-radius: 18px; padding: 16px 18px;
+    font-size: clamp(15px,1.8vw,18px); cursor:pointer;
+    color:#073b4c; background: linear-gradient(180deg, #ffffff, #f4faff);
+    box-shadow: var(--shadow);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  html[data-theme="dark"] .mode-btn{ background: linear-gradient(180deg, #111c2f, #0c1627); color:#d9ecff; }
+  .mode-btn:hover{ transform: translateY(-2px); box-shadow: 0 14px 34px rgba(31,42,68,0.12); }
+  .mode-btn span.emoji{ font-size: 1.3em; }
+
+  .card{
+    display:none; background: var(--card); border-radius: 18px; box-shadow: var(--shadow);
+    padding: clamp(18px, 2.5vw, 28px); margin: 0 auto var(--spacing); transition: background 200ms ease;
+  }
+  .card h2{ margin:0 0 6px 0; font-size: clamp(18px, 2.8vw, 24px); }
+  .card p.sub{ margin:0 0 16px 0; color: var(--muted); }
+
+  .grid{ display:grid; gap: 14px; }
+  @media (min-width:720px){ .grid.two{ grid-template-columns: 1fr 1fr; } }
+
+  label{ font-size: 14px; color: var(--muted); margin-bottom: 6px; display:block; }
+  input[type="text"], input[type="number"]{
+    width:100%; border:1px solid #e6edf7; border-radius: 12px; padding: 12px 14px;
+    font-size:16px; background:#fbfdff; outline:none; transition: box-shadow .12s ease, border-color .12s ease, background 200ms ease;
+  }
+  html[data-theme="dark"] input{ background:#0e1a2b; border-color:#1a2a45; color:var(--ink); }
+  input:focus{ border-color:#cfe2ff; box-shadow: 0 0 0 4px #eaf3ff; }
+  html[data-theme="dark"] input:focus{ box-shadow: 0 0 0 4px rgba(123,178,255,.25); }
+
+  .primary{
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    color:#073b4c; border:0; border-radius: 14px; padding: 12px 16px;
+    font-weight:700; cursor:pointer; box-shadow: var(--shadow); font-size: 16px; transition: transform .12s ease;
+  }
+  .primary:hover{ transform: translateY(-1px); }
+
+  .chapter-progress{ display:none; }
+  .chapter-header{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:10px; }
+  .pill{
+    display:inline-flex; align-items:center; gap:8px; padding: 8px 12px;
+    background:#f2f8ff; color:#24507a; border-radius: 999px; font-size: 14px;
+  }
+  html[data-theme="dark"] .pill{ background:#0e1a2b; color:#b8d7ff; }
+
+  .chapter-list{ display:flex; flex-wrap: wrap; gap:10px; }
+  .chip{
+    background:#eef6ff; color:#184b74; border:1px solid #dbeaff;
+    border-radius: 999px; padding: 8px 12px; cursor:pointer; transition: all .12s ease; font-size: 14px;
+  }
+  .chip:hover{ transform: translateY(-1px); }
+  .chip.completed{ background:#184b74; color:#ffffff; border-color:#184b74; }
+  html[data-theme="dark"] .chip{ background:#0f1b2e; color:#cfe3ff; border-color:#1d2c45; }
+  html[data-theme="dark"] .chip.completed{ background:#2a5a99; border-color:#2a5a99; }
+
+  .break{ display:none; background: var(--card); border-radius: 18px; box-shadow: var(--shadow);
+    padding: clamp(22px, 4vw, 34px); margin-top: var(--spacing); text-align:center; }
+  .ring-wrap{
+    width: min(320px, 70vw); aspect-ratio: 1/1; border-radius: 50%; margin: 10px auto 16px;
+    display:grid; place-items:center;
+    background:
+      radial-gradient(circle at 50% 50%, var(--card) 42%, transparent 43%),
+      conic-gradient(var(--brand) calc(var(--progress, 0) * 1%), #e8f0ff 0);
+    box-shadow: inset 0 0 0 10px var(--ring-bg), 0 12px 36px rgba(31,42,68,0.10);
+    transition: background 200ms ease;
+  }
+  html[data-theme="dark"] .ring-wrap{
+    background:
+      radial-gradient(circle at 50% 50%, var(--card) 42%, transparent 43%),
+      conic-gradient(var(--brand) calc(var(--progress, 0) * 1%), #15243d 0);
+    box-shadow: inset 0 0 0 10px var(--ring-bg), 0 12px 36px rgba(0,0,0,0.4);
+  }
+  .ring-core{ width: 62%; aspect-ratio: 1/1; border-radius: 50%; background: var(--card); display:grid; place-items:center; box-shadow: var(--shadow); transition: background 200ms ease; }
+  .timer{ font-size: clamp(24px, 6vw, 40px); font-weight: 800; letter-spacing: .5px; color: #0c3e6b; }
+  html[data-theme="dark"] .timer{ color: #d9ecff; }
+  .tip{ color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+  .row{ display:flex; gap:10px; flex-wrap:wrap; }
+  .spacer{ height: 6px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🎓 Study Mode Hub</h1>
+  <p>Gentle progress, tiny wins, and snack-worthy breaks.</p>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">🌙 Dark</button>
+</header>
+
+<div class="wrap">
+  <section class="mode-buttons" aria-label="Study modes">
+    <button class="mode-btn" onclick="selectMode('book')"><span class="emoji">📖</span> Book</button>
+    <button class="mode-btn" onclick="selectMode('film')"><span class="emoji">🎬</span> Film</button>
+    <button class="mode-btn" onclick="selectMode('article')"><span class="emoji">📰</span> Article</button>
+    <button class="mode-btn" onclick="selectMode('essay')"><span class="emoji">📝</span> Essay</button>
+  </section>
+
+  <!-- Book -->
+  <section id="book" class="card" aria-live="polite">
+    <h2>Book Mode</h2>
+    <p class="sub">Track chapters, tap to complete, and enjoy a 5-minute snack break.</p>
+    <div class="grid two">
+      <div>
+        <label for="bookTitle">Title</label>
+        <input id="bookTitle" type="text" placeholder="The Lightning Thief" />
+      </div>
+      <div>
+        <label for="bookAuthor">Author</label>
+        <input id="bookAuthor" type="text" placeholder="Rick Riordan" />
+      </div>
+      <div>
+        <label for="bookISBN">ISBN</label>
+        <input id="bookISBN" type="text" placeholder="978-0786838653" />
+      </div>
+      <div>
+        <label for="bookChapters">Number of Chapters</label>
+        <input id="bookChapters" type="number" min="1" placeholder="22" />
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <button class="primary" onclick="startBook()">Start Book Session</button>
+  </section>
+
+  <section id="chapterProgress" class="card chapter-progress">
+    <div class="chapter-header">
+      <div id="bookInfo" class="pill">📚 Your Book</div>
+      <div class="pill" id="chapStats">0% done</div>
+    </div>
+    <div id="chapterButtons" class="chapter-list"></div>
+  </section>
+
+  <!-- Film -->
+  <section id="film" class="card">
+    <h2>Film Mode</h2>
+    <p class="sub">Log a watch, then take a calm 5-minute pause to reset your brain.</p>
+    <div class="grid two">
+      <div>
+        <label for="filmTitle">Film Title</label>
+        <input id="filmTitle" type="text" placeholder="Spirited Away" />
+      </div>
+      <div>
+        <label for="filmDirector">Director</label>
+        <input id="filmDirector" type="text" placeholder="Hayao Miyazaki" />
+      </div>
+      <div>
+        <label for="filmRuntime">Runtime (minutes)</label>
+        <input id="filmRuntime" type="number" min="1" placeholder="125" />
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <button class="primary" onclick="startFilm()">Start Film Session</button>
+  </section>
+
+  <!-- Article -->
+  <section id="article" class="card">
+    <h2>Article Mode</h2>
+    <p class="sub">Read by pages or sections and celebrate with a short snack break.</p>
+    <div class="grid two">
+      <div>
+        <label for="articleTitle">Article Title</label>
+        <input id="articleTitle" type="text" placeholder="Neural Attention Mechanisms" />
+      </div>
+      <div>
+        <label for="articleAuthor">Author</label>
+        <input id="articleAuthor" type="text" placeholder="M. Vaswani et al." />
+      </div>
+      <div>
+        <label for="articlePages">Number of Pages</label>
+        <input id="articlePages" type="number" min="1" placeholder="12" />
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <button class="primary" onclick="startArticle()">Start Article Session</button>
+  </section>
+
+  <!-- Essay -->
+  <section id="essay" class="card">
+    <h2>Essay Mode</h2>
+    <p class="sub">Write in calm bursts. When you hit a milestone, take five.</p>
+    <div class="grid two">
+      <div>
+        <label for="essayTitle">Essay Title</label>
+        <input id="essayTitle" type="text" placeholder="How Innovation Scales" />
+      </div>
+      <div>
+        <label for="essayTopic">Topic</label>
+        <input id="essayTopic" type="text" placeholder="Organizational agility" />
+      </div>
+      <div>
+        <label for="essayWords">Target Word Count</label>
+        <input id="essayWords" type="number" min="100" placeholder="1200" />
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <button class="primary" onclick="startEssay()">Start Essay Session</button>
+  </section>
+
+  <!-- Break -->
+  <section id="breakTimer" class="break" aria-live="polite">
+    <h2>🍎 Break Time</h2>
+    <p class="sub">Grab water. Stretch. Snack. Your calm countdown is below.</p>
+    <div class="ring-wrap" id="ring" style="--progress:0;">
+      <div class="ring-core">
+        <div id="timerText" class="timer">5:00</div>
+      </div>
+    </div>
+    <p class="tip">Pro tip: look far away for 20 seconds to rest your eyes.</p>
+    <div class="row" style="justify-content:center; margin-top:10px;">
+      <button class="primary" onclick="endBreakEarly()">I’m ready now</button>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ---------- Persistence Keys ---------- */
+const KEY_THEME = 'smh_theme';
+const KEY_BOOK  = 'smh_book';
+const KEY_LASTS = 'smh_last_inputs';
+
+/* ---------- Theme (Light/Dark) ---------- */
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  themeBtn.textContent = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+  localStorage.setItem(KEY_THEME, theme);
+}
+function initTheme(){
+  const saved = localStorage.getItem(KEY_THEME);
+  if(saved){ applyTheme(saved); }
+  else {
+    // Respect OS preference on first load
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(prefersDark ? 'dark' : 'light');
+  }
+}
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+});
+
+/* ---------- General UI ---------- */
+let timerInterval;
+let totalSeconds = 5 * 60;
+let remaining = totalSeconds;
+
+function hideAll(){
+  document.querySelectorAll('.card, .chapter-progress, .break').forEach(el => el.style.display='none');
+}
+function selectMode(mode){
+  clearInterval(timerInterval);
+  hideAll();
+  document.getElementById(mode).style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ---------- Helpers ---------- */
+function $(sel){ return document.querySelector(sel); }
+function val(id){ return (document.getElementById(id)?.value || '').trim(); }
+function setVal(id, v){ const el = document.getElementById(id); if(el) el.value = v ?? ''; }
+function clampInt(v, min, max){
+  const n = parseInt(v, 10);
+  if(Number.isNaN(n)) return null;
+  return Math.max(min, Math.min(max, n));
+}
+
+/* ---------- Save/Load last inputs for modes ---------- */
+function saveLastInputs(){
+  const obj = {
+    filmTitle: val('filmTitle'), filmDirector: val('filmDirector'), filmRuntime: val('filmRuntime'),
+    articleTitle: val('articleTitle'), articleAuthor: val('articleAuthor'), articlePages: val('articlePages'),
+    essayTitle: val('essayTitle'), essayTopic: val('essayTopic'), essayWords: val('essayWords'),
+  };
+  localStorage.setItem(KEY_LASTS, JSON.stringify(obj));
+}
+function loadLastInputs(){
+  try{
+    const obj = JSON.parse(localStorage.getItem(KEY_LASTS) || '{}');
+    setVal('filmTitle', obj.filmTitle); setVal('filmDirector', obj.filmDirector); setVal('filmRuntime', obj.filmRuntime);
+    setVal('articleTitle', obj.articleTitle); setVal('articleAuthor', obj.articleAuthor); setVal('articlePages', obj.articlePages);
+    setVal('essayTitle', obj.essayTitle); setVal('essayTopic', obj.essayTopic); setVal('essayWords', obj.essayWords);
+  }catch{}
+}
+
+/* ---------- Book Mode (with persistence) ---------- */
+function startBook(){
+  const title = val('bookTitle') || 'Untitled Book';
+  const author = val('bookAuthor') || 'Unknown';
+  const isbn = val('bookISBN') || '—';
+  const chapters = clampInt(val('bookChapters'), 1, 999) || 1;
+
+  const data = { title, author, isbn, chapters, done: loadBookDone().filter(i => i <= chapters) };
+  localStorage.setItem(KEY_BOOK, JSON.stringify(data));
+
+  renderBook(data);
+  hideAll(); $('#chapterProgress').style.display = 'block';
+  smoothTo('#chapterProgress');
+}
+function renderBook(data){
+  $('#bookInfo').textContent = `📚 ${data.title} — ${data.author} • ISBN ${data.isbn}`;
+  const list = $('#chapterButtons'); list.innerHTML = '';
+  for(let i=1;i<=data.chapters;i++){
+    const b = document.createElement('button');
+    b.className = 'chip' + (data.done.includes(i) ? ' completed' : '');
+    b.textContent = `Chapter ${i}`;
+    b.onclick = () => {
+      b.classList.toggle('completed');
+      toggleChapter(i);
+      updateChapterStats();
+      startBreak();
+    };
+    list.appendChild(b);
+  }
+  updateChapterStats();
+}
+function updateChapterStats(){
+  const chips = [...document.querySelectorAll('.chip')];
+  const done = chips.filter(c => c.classList.contains('completed')).length;
+  const pct = chips.length ? Math.round((done / chips.length) * 100) : 0;
+  $('#chapStats').textContent = `${pct}% done`;
+}
+function loadBook(){
+  try { return JSON.parse(localStorage.getItem(KEY_BOOK) || 'null'); }
+  catch { return null; }
+}
+function loadBookDone(){
+  const b = loadBook(); return b?.done ?? [];
+}
+function toggleChapter(i){
+  const b = loadBook();
+  if(!b) return;
+  const idx = b.done.indexOf(i);
+  if(idx >= 0) b.done.splice(idx,1); else b.done.push(i);
+  localStorage.setItem(KEY_BOOK, JSON.stringify(b));
+}
+
+/* ---------- Film / Article / Essay (remember last values) ---------- */
+function startFilm(){
+  const runtime = clampInt(val('filmRuntime'), 1, 10000);
+  if(!runtime){ alert('Enter a runtime in minutes.'); return; }
+  saveLastInputs();
+  alert(`Enjoy your film! When you wrap up (${runtime} min), a 5-minute snack break awaits.`);
+  startBreak();
+}
+function startArticle(){
+  const pages = clampInt(val('articlePages'), 1, 5000);
+  if(!pages){ alert('Enter how many pages.'); return; }
+  saveLastInputs();
+  alert(`Nice! After your reading (${pages} pages), take a gentle 5-minute reset.`);
+  startBreak();
+}
+function startEssay(){
+  const words = clampInt(val('essayWords'), 100, 20000);
+  if(!words){ alert('Enter a target word count.'); return; }
+  saveLastInputs();
+  alert(`Let’s write! Hit a milestone, then enjoy a calm 5-minute break.`);
+  startBreak();
+}
+
+/* ---------- Break Timer ---------- */
+function startBreak(){
+  clearInterval(timerInterval);
+  remaining = totalSeconds;
+  hideAll();
+  $('#breakTimer').style.display = 'block';
+  tick();
+  timerInterval = setInterval(tick, 1000);
+}
+function endBreakEarly(){
+  clearInterval(timerInterval);
+  notifyDone('Break wrapped early—nice focus!');
+}
+function tick(){
+  const m = Math.floor(remaining / 60);
+  const s = remaining % 60;
+  $('#timerText').textContent = `${m}:${String(s).padStart(2,'0')}`;
+  const progress = Math.round(((totalSeconds - remaining) / totalSeconds) * 100);
+  $('#ring').style.setProperty('--progress', progress);
+  if(remaining <= 0){
+    clearInterval(timerInterval);
+    notifyDone('Break over! You’ve got this. 💪');
+    return;
+  }
+  remaining -= 1;
+}
+function notifyDone(msg){
+  alert(msg);
+  $('#breakTimer').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function smoothTo(sel){ const el = $(sel); if(!el) return; el.scrollIntoView({ behavior:'smooth', block:'start' }); }
+
+/* ---------- Restore session on load ---------- */
+function restoreBookToForm(b){
+  if(!b) return;
+  setVal('bookTitle', b.title);
+  setVal('bookAuthor', b.author);
+  setVal('bookISBN', b.isbn);
+  setVal('bookChapters', b.chapters);
+}
+function maybeRestoreBookUI(){
+  const b = loadBook();
+  if(!b) return;
+  renderBook(b);
+  // show progress card by default if a book exists
+  $('#chapterProgress').style.display = 'block';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
+  loadLastInputs();
+  const savedBook = loadBook();
+  if(savedBook){ restoreBookToForm(savedBook); }
+  maybeRestoreBookUI();
+
+  // Auto-save book form fields as you type
+  ['bookTitle','bookAuthor','bookISBN','bookChapters'].forEach(id => {
+    const el = document.getElementById(id);
+    el?.addEventListener('input', () => {
+      const b = loadBook() || { title:'', author:'', isbn:'', chapters:1, done:[] };
+      b.title = val('bookTitle') || b.title;
+      b.author = val('bookAuthor') || b.author;
+      b.isbn = val('bookISBN') || b.isbn;
+      b.chapters = clampInt(val('bookChapters'),1,999) || b.chapters;
+      // prune any done chapters beyond new count
+      b.done = (b.done || []).filter(i => i <= b.chapters);
+      localStorage.setItem(KEY_BOOK, JSON.stringify(b));
+    });
+  });
+});
+</script>
+</body>
+</html>
