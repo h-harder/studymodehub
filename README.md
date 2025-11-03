@@ -3,7 +3,7 @@
 A single-file HTML app that makes studying feel human: gentle visuals, snack-worthy breaks, and flexible modes for **Book**, **Film**, **Article**, and **Essay**. Includes a smooth **Dark Mode** and **auto-save** (localStorage) so your session survives a reload.
 
 > **License:** This project is distributed under a **Use-Only Software License (Access-Only)**.  
-> You may **use** it from the licensor’s original source, but **copying, redistribution, self-hosting, modification, or reverse engineering are prohibited**. See [License](#license).
+> You may **use** it from the licensor’s original source, but **copying, redistribution, self-hosting, modification, or reverse engineering are prohibited**. See [License](#LICENSE.md).
 
 ---
 
